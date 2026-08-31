@@ -12,6 +12,14 @@ from robot_framework import config
 from robot_framework.sub_process import database, kmd_nova, letters, serviceplatformen
 
 
+# The framework retries the process on errors, which starts it over from the top.
+# These are kept on module level so an attempt picks up where the previous one
+# stopped, instead of working through hundreds of already handled citizens again.
+# They must NOT be cleared on reset.
+_handled_citizens: set[str] = set()
+_citizens_without_cases: set[str] = set()
+
+
 def process(orchestrator_connection: OrchestratorConnection) -> None:
     """Do the primary process of the robot."""
     orchestrator_connection.log_trace("Running process.")
@@ -22,17 +30,24 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     kombit_access = serviceplatformen.get_kombit_access(orchestrator_connection)
 
     citizens_with_unknown_address = [database.Citizen("6101009805", "Testensen")]*5 # TODO: database.get_citizens_from_sql()
-    citizens_without_cases = []
+
+    if _handled_citizens:
+        orchestrator_connection.log_info(f"Resuming. {len(_handled_citizens)} citizens already handled.")
 
     for citizen in citizens_with_unknown_address:
+        if citizen.cpr in _handled_citizens:
+            continue
+
         result = handle_citizen(citizen, nova_access, kombit_access)
         orchestrator_connection.log_info(f"Result: {result} - CPR: {citizen.cpr}")
 
         if result == "No KLE case found":
-            citizens_without_cases.append(citizen)
+            _citizens_without_cases.add(citizen.cpr)
 
-    if citizens_without_cases:
-        send_no_cases_notification(citizens_without_cases)
+        _handled_citizens.add(citizen.cpr)
+
+    if _citizens_without_cases:
+        send_no_cases_notification(_citizens_without_cases)
 
 
 def handle_citizen(citizen: database.Citizen, nova_access: NovaAccess, kombit_access: KombitAccess) -> str:
@@ -92,13 +107,13 @@ def send_reminder(citizen: database.Citizen, case: NovaCase, reminder_number: in
             kmd_nova.add_sms_note(case.uuid, reminder_number, nova_access)
 
 
-def send_no_cases_notification(citizens_without_cases: list[database.Citizen]):
+def send_no_cases_notification(cprs_without_cases: set[str]):
     """Send a notification about citizens on an unknown address who have no case at all."""
 
     body = "\n".join((
         "Hejsa\n",
         "Følgende borgere er på ukendt adresse, men har ingen aktiv sag i Nova med KLE 23.05.00:\n",
-        "\n".join(citizen.cpr for citizen in citizens_without_cases),
+        "\n".join(cprs_without_cases),
         "\nVenlig hilsen",
         "Rykkerforløb-robotten",
     ))
