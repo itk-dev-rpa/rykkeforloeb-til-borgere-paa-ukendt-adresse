@@ -2,6 +2,7 @@
 
 
 from datetime import datetime
+from pathlib import Path
 
 from itk_dev_shared_components.kmd_nova.nova_objects import Caseworker
 
@@ -28,6 +29,7 @@ CVR = "55133018"
 REMINDER_NOTE_CUTOFF = datetime(2026, 8, 1)  # Used to avoid wrong journal notes created earlier
 LIBREOFFICE_TIMEOUT_SECONDS = 60
 PATH_TO_LIBREOFFICE = "C:/Program Files/LibreOffice/program/soffice.exe"
+TMP_DIR = Path("tmp")
 
 FIRST_REMINDER_DELAY = 1  # TODO
 FOLLOWING_REMINDER_DELAY = 0  # TODO

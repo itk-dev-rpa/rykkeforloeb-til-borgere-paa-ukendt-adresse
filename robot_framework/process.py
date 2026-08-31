@@ -12,7 +12,6 @@ from robot_framework import config
 from robot_framework.sub_process import database, kmd_nova, letters, serviceplatformen
 
 
-# pylint: disable-next=unused-argument
 def process(orchestrator_connection: OrchestratorConnection) -> None:
     """Do the primary process of the robot."""
     orchestrator_connection.log_trace("Running process.")
@@ -45,20 +44,20 @@ def handle_citizen(citizen: database.Citizen, nova_access: NovaAccess, kombit_ac
     if not found_case:
         return "No workable case found"
 
-    latest_status, latest_date = kmd_nova.get_case_status(found_case.uuid, nova_access)
+    latest_step, latest_date = kmd_nova.get_case_status(found_case.uuid, nova_access)
 
-    if latest_status >= config.MAX_REMINDER_COUNT:
+    if latest_step >= config.MAX_REMINDER_COUNT:
         send_limit_reached_notification(citizen.cpr)
         return "Limit reached"
 
     # The first reminder is timed from the creation of the case, the following ones from the latest reminder.
-    if latest_status == 0:
+    if latest_step == 0:
         reminder_due = datetime.today() - found_case.case_date > timedelta(days=config.FIRST_REMINDER_DELAY)
     else:
         reminder_due = datetime.today() - latest_date > timedelta(days=config.FOLLOWING_REMINDER_DELAY)
 
     if reminder_due:
-        send_reminder(citizen, found_case, latest_status + 1, nova_access, kombit_access)
+        send_reminder(citizen, found_case, latest_step + 1, nova_access, kombit_access)
         return "Case handled"
 
     return "Reminder not due yet"
@@ -81,7 +80,7 @@ def send_reminder(citizen: database.Citizen, case: NovaCase, reminder_number: in
             letter_label = f"{citizen.first_name}, din handling er påkrævet."
 
     deadline_date = datetime.now() + timedelta(days=config.LETTER_DEADLINE_DAYS)
-    pdf_path = letters.fill_template(template_number, citizen.first_name, deadline_date, case.case_number)
+    pdf_path = letters.fill_template(template_number, citizen.first_name, deadline_date, case.case_number, letter_label)
     letter_sent = serviceplatformen.send_reminder_letter(citizen.cpr, pdf_path, letter_label, kombit_access)
 
     kmd_nova.upload_document(case.uuid, pdf_path, nova_access)

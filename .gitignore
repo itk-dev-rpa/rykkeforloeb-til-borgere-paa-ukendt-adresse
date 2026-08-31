@@ -159,3 +159,4 @@ cython_debug/
 uv.lock
 certificate.pem
 notes.txt
+tmp/*

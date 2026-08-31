@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import re
 import subprocess
 import uuid
 
@@ -8,7 +9,7 @@ from docxtpl import DocxTemplate
 from robot_framework import config
 
 
-def fill_template(template_number: int, first_name: str, deadline: datetime, case_number: str) -> Path:
+def fill_template(template_number: int, first_name: str, deadline: datetime, case_number: str, letter_label: str) -> Path:
     """Fill a template with the given context and convert it to PDF.
 
     Args:
@@ -16,14 +17,15 @@ def fill_template(template_number: int, first_name: str, deadline: datetime, cas
         first_name: The first name of the receiver.
         deadline: The response deadline. Only used for template 2.
         case_number: The relevant Nova case number.
+        letter_label: The label of the letter. Used as the file name.
 
     Returns:
         The path to the generated PDF.
     """
 
     template_path = Path("templates") / f"Rykker {template_number} - Ukendt adresse.docx"
-    tmp_dir = Path("tmp") / Path(str(uuid.uuid4()))
-    docx_path = tmp_dir / f"{first_name}, din adresse er ukendt.docx"
+    tmp_dir = config.TMP_DIR / Path(str(uuid.uuid4()))
+    docx_path = tmp_dir / f"{_to_file_name(letter_label)}.docx"
     pdf_path = docx_path.with_suffix(".pdf")
 
     # Merge docx template
@@ -46,6 +48,16 @@ def fill_template(template_number: int, first_name: str, deadline: datetime, cas
     )
 
     return pdf_path
+
+
+def _to_file_name(letter_label: str) -> str:
+    """Turn a letter label into a file name Windows accepts.
+
+    Removes the characters that aren't allowed in file names and trims
+    trailing dots and spaces, which Windows strips silently.
+    """
+    file_name = re.sub(r'[<>:"/\\|?*]', "", letter_label)
+    return file_name.rstrip(". ")
 
 
 def kill_libreoffice() -> None:
