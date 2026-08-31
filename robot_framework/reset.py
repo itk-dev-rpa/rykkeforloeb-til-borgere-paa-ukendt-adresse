@@ -2,6 +2,8 @@
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 
+from robot_framework.sub_process.letters import kill_libreoffice
+
 
 def reset(orchestrator_connection: OrchestratorConnection) -> None:
     """Clean up, close/kill all programs and start them again. """
@@ -25,6 +27,7 @@ def close_all(orchestrator_connection: OrchestratorConnection) -> None:
 def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Forcefully close all applications used by the robot."""
     orchestrator_connection.log_trace("Killing all applications.")
+    kill_libreoffice()
 
 
 def open_all(orchestrator_connection: OrchestratorConnection) -> None:

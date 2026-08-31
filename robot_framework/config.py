@@ -1,5 +1,10 @@
 """This module contains configuration constants used across the framework"""
 
+
+from datetime import datetime
+
+from itk_dev_shared_components.kmd_nova.nova_objects import Caseworker
+
 # The number of times the robot retries on an error before terminating.
 MAX_RETRY_COUNT = 3
 
@@ -14,14 +19,26 @@ SCREENSHOT_SENDER = "robot@friend.dk"
 # Constant/Credential names
 ERROR_EMAIL = "Error Email"
 
+KEYVAULT_CREDENTIALS = "Keyvault"
+KEYVAULT_URI = "Keyvault URI"
+KEYVAULT_PATH = "Digital_Post_Ukendt_Adresse"
 
-# Queue specific configs
-# ----------------------
+# Constants
+CVR = "55133018"
+REMINDER_NOTE_CUTOFF = datetime(2026, 8, 1)  # Used to avoid wrong journal notes created earlier
+LIBREOFFICE_TIMEOUT_SECONDS = 60
+PATH_TO_LIBREOFFICE = "C:/Program Files/LibreOffice/program/soffice.exe"
 
-# The name of the job queue (if any)
-QUEUE_NAME = None
+FIRST_REMINDER_DELAY = 1  # TODO
+FOLLOWING_REMINDER_DELAY = 0  # TODO
+MAX_REMINDER_COUNT = 24
+LETTER_DEADLINE_DAYS = 30
 
-# The limit on how many queue elements to process
-MAX_TASK_COUNT = 100
+CASEWORKER = Caseworker(  # TODO
+    name='AZRPA78 - Rpabruger Rpa78 - MÅ IKKE SLETTES RITM0283472',
+    ident='AZRPA78',
+    uuid='a577c0a2-a131-43a5-b4e6-b4f5bb75028f',
+    type='user'
+)
 
-# ----------------------
+NOTIFICATION_RECEIVER = "ghbm@aarhus.dk"  # TODO

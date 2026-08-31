@@ -157,3 +157,5 @@ cython_debug/
 
 .vscode/
 uv.lock
+certificate.pem
+notes.txt
