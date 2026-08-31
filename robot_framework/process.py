@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from itk_dev_shared_components.kmd_nova.authentication import NovaAccess
 from itk_dev_shared_components.kmd_nova.nova_objects import NovaCase
-from itk_dev_shared_components.kmd_nova import nova_notes
 from python_serviceplatformen.authentication import KombitAccess
 from itk_dev_shared_components.smtp import smtp_util
 
