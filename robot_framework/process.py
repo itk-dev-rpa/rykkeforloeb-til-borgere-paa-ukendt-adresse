@@ -15,7 +15,6 @@ from robot_framework.sub_process import database, kmd_nova, letters, serviceplat
 # The framework retries the process on errors, which starts it over from the top.
 # These are kept on module level so an attempt picks up where the previous one
 # stopped, instead of working through hundreds of already handled citizens again.
-# They must NOT be cleared on reset.
 _handled_citizens: set[str] = set()
 _citizens_without_cases: set[str] = set()
 
@@ -29,7 +28,7 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
 
     kombit_access = serviceplatformen.get_kombit_access(orchestrator_connection)
 
-    citizens_with_unknown_address = [database.Citizen("6101009805", "Testensen")]*5 # TODO: database.get_citizens_from_sql()
+    citizens_with_unknown_address = database.get_citizens_from_sql()
 
     if _handled_citizens:
         orchestrator_connection.log_info(f"Resuming. {len(_handled_citizens)} citizens already handled.")
