@@ -1,3 +1,5 @@
+"""This module handles interactions with Kombit Serviceplatformen."""
+
 import base64
 from pathlib import Path
 
@@ -11,7 +13,7 @@ from robot_framework import config
 
 
 def get_kombit_access(orchestrator_connection: OrchestratorConnection):
-    """Get Kombit access credentials."""
+    """Get Kombit access credentials from the Hashicorp vault."""
     # Access Keyvault
     certificate_path = "certificate.pem"
     vault_auth = orchestrator_connection.get_credential(config.KEYVAULT_CREDENTIALS)
@@ -32,6 +34,17 @@ def get_kombit_access(orchestrator_connection: OrchestratorConnection):
 
 
 def send_reminder_letter(recipient_cpr: str, letter_path: Path, letter_label: str, kombit_access: KombitAccess) -> bool:
+    """Send a reminder letter to the given cpr.
+
+    Args:
+        recipient_cpr: The cpr of the recipient.
+        letter_path: The path to the letter as a pdf.
+        letter_label: The label to put on the letter.
+        kombit_access: The KombitAccess object used for auth.
+
+    Returns:
+        True if the cpr is registered for Digital Post.
+    """
     if not digital_post.is_registered(recipient_cpr, "digitalpost", kombit_access):
         return False
 
@@ -62,6 +75,15 @@ def send_reminder_letter(recipient_cpr: str, letter_path: Path, letter_label: st
 
 
 def send_nemsms(recipient_cpr: str, kombit_access: KombitAccess) -> bool:
+    """Send a NemSMS notification about the previously send letter.
+
+    Args:
+        recipient_cpr: The cpr of the sms recipient.
+        kombit_access: The KombitAccess object used for auth.
+
+    Returns:
+        True if the cpr is registered for NemSMS.
+    """
     if not digital_post.is_registered(recipient_cpr, "nemsms", kombit_access):
         return False
 

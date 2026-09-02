@@ -7,9 +7,9 @@ import pyodbc
 
 @dataclass
 class Citizen:
+    """A dataclass representing citizen data from the database."""
     cpr: str
     first_name: str
-
 
 
 def get_citizens_from_sql() -> list[Citizen]:

@@ -1,4 +1,4 @@
-
+"""This module handles interactions with KMD Nova."""
 
 from datetime import datetime
 from pathlib import Path
@@ -11,9 +11,12 @@ from itk_dev_shared_components.kmd_nova.nova_objects import NovaCase, Document
 from robot_framework import config
 
 
-
-
 def get_relevant_case(cpr: str, nova_access: NovaAccess) -> tuple[NovaCase, bool]:
+    """Find the relevant case for the given cpr-number.
+
+    Returns:
+        The case to work on if any, and whether any case exists at all.
+    """
     cases = nova_cases.get_cases(nova_access, cpr)
 
     kle_case_found = False
@@ -71,6 +74,13 @@ def get_case_status(case_uuid: str, nova_access: NovaAccess) -> tuple[int, datet
 
 
 def upload_document(case_uuid: str, document_path: Path, nova_access: NovaAccess):
+    """Upload a letter document to the Nova case.
+
+    Args:
+        case_uuid: UUID of the Nova case.
+        document_path: The path to the document.
+        nova_access: NovaAccess object used for auth.
+    """
     with document_path.open("rb") as file:
         document_id = nova_documents.upload_document(file, document_path.name, nova_access)
 
@@ -87,6 +97,14 @@ def upload_document(case_uuid: str, document_path: Path, nova_access: NovaAccess
 
 
 def add_letter_note(case_uuid: str, sent: bool, reminder_number: int, nova_access: NovaAccess):
+    """Add a note to the Nova case about the sending of a letter.
+
+    Args:
+        case_uuid: The uuid of the Nova case.
+        sent: Whether the letter was actually sent or not.
+        reminder_number: The count of the current reminder letter.
+        nova_access:  NovaAccess object used for auth.
+    """
 
     if sent:
         note_title = f"Sendt: Rykker {reminder_number}"
@@ -102,6 +120,13 @@ def add_letter_note(case_uuid: str, sent: bool, reminder_number: int, nova_acces
 
 
 def add_sms_note(case_uuid, reminder_number: int, nova_access: NovaAccess):
+    """Add a note about a NemSMS being sent.
+
+    Args:
+        case_uuid: The uuid of the Nova case.
+        reminder_number: The count of the current reminder letter.
+        nova_access:  NovaAccess object used for auth.
+    """
     nova_notes.add_text_note(
         case_uuid=case_uuid,
         note_title=f"NemSMS Sendt: Rykker {reminder_number}",

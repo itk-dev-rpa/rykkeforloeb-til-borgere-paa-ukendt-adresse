@@ -1,3 +1,5 @@
+"""This module handles merging and converting letter templates."""
+
 from datetime import datetime
 from pathlib import Path
 import re
