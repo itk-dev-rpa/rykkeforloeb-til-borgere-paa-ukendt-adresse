@@ -12,7 +12,7 @@ class Citizen:
     first_name: str
 
 
-def get_citizens_from_sql() -> list[Citizen]:
+def get_citizens_with_unknown_address() -> list[Citizen]:
     """Get citizens with unknown address from SQL database.
 
     Returns:

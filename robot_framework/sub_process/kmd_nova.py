@@ -32,12 +32,12 @@ def get_relevant_case(cpr: str, nova_access: NovaAccess) -> tuple[NovaCase, bool
     return found_case, kle_case_found
 
 
-def get_case_status(case_uuid: str, nova_access: NovaAccess) -> tuple[int, datetime | None]:
+def get_case_reminder_information(case_uuid: str, nova_access: NovaAccess) -> tuple[int, datetime | None]:
     """Get information about the latest reminder sent for a case.
 
     Parses journal notes to find the most recent reminder note created by the robot.
-    Looks for notes with titles matching "Rykker X sendt". Notes dated before
-    config.REMINDER_NOTE_CUTOFF are ignored (pre-go-live test/legacy notes).
+    Looks for notes with titles matching "Sendt: Rykker X" and "Ikke sendt: Rykker X".
+    Notes dated before config.REMINDER_NOTE_CUTOFF are ignored (pre-go-live test/legacy notes).
 
     Args:
         case_uuid: The uuid of the case to check.
