@@ -28,7 +28,7 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
 
     kombit_access = serviceplatformen.get_kombit_access(orchestrator_connection)
 
-    citizens_with_unknown_address = database.get_citizens_from_sql()
+    citizens_with_unknown_address = database.get_citizens_with_unknown_address()
 
     if _handled_citizens:
         orchestrator_connection.log_info(f"Resuming. {len(_handled_citizens)} citizens already handled.")
@@ -61,7 +61,7 @@ def handle_citizen(citizen: database.Citizen, nova_access: NovaAccess, kombit_ac
     if not found_case:
         return "No workable case found"
 
-    latest_step, latest_date = kmd_nova.get_case_status(found_case.uuid, nova_access)
+    latest_step, latest_date = kmd_nova.get_case_reminder_information(found_case.uuid, nova_access)
 
     if latest_step >= config.MAX_REMINDER_COUNT:
         send_limit_reached_notification(citizen.cpr)
