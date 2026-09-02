@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from itk_dev_shared_components.kmd_nova.authentication import NovaAccess
 from itk_dev_shared_components.kmd_nova.nova_objects import NovaCase
-from python_serviceplatformen.authentication import KombitAccess
 from itk_dev_shared_components.smtp import smtp_util
+from python_serviceplatformen.authentication import KombitAccess
 
 from robot_framework import config
 from robot_framework.sub_process import database, kmd_nova, letters, serviceplatformen
@@ -50,6 +50,9 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
 
 
 def handle_citizen(citizen: database.Citizen, nova_access: NovaAccess, kombit_access: KombitAccess) -> str:
+    """Handle the process of a single citizen.
+    Find the relevant Nova case, send reminders, and journalize relevant information.
+    """
     found_case, kle_case_found = kmd_nova.get_relevant_case(citizen.cpr, nova_access)
 
     if not kle_case_found:
