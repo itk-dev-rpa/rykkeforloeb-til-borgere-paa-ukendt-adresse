@@ -55,7 +55,7 @@ def get_case_reminder_information(case_uuid: str, nova_access: NovaAccess) -> tu
 
     for note in notes:
         # Match both "Sendt: Rykker X" and "Ikke sendt: Rykker X"
-        match = re.match(r"^(?:Ikke sendt:|Sendt:) Rykker (\d+)$", note.title)
+        match = re.match(r"^(?:Ikke sendt|Sendt): Rykker (\d+)$", note.title)
         if not match:
             continue
 
