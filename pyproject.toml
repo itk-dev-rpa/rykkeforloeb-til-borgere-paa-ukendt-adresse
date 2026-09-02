@@ -24,6 +24,9 @@ dependencies = [
     "docxtpl == 0.20.*"
 ]
 
+[tool.setuptools.packages.find]
+include = ["robot_framework*"]
+
 [project.optional-dependencies]
 dev = [
   "pylint",
