@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v2
         with:
           fetch-depth: 2
 
@@ -18,4 +18,4 @@ jobs:
         run: git fetch
 
       - name: Check that changelog has been updated.
-        run: git diff --exit-code origin/${{ github.base_ref }} -- changelog.md && exit 1 || exit 0
+        run: git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md && exit 1 || exit 0
