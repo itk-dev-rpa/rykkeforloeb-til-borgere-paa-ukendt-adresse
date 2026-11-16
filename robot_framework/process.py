@@ -17,6 +17,7 @@ from robot_framework.sub_process import database, kmd_nova, letters, serviceplat
 # stopped, instead of working through hundreds of already handled citizens again.
 _handled_citizens: set[str] = set()
 _citizens_without_cases: set[str] = set()
+_citizens_outside_flow: set[str] = set()
 
 
 def process(orchestrator_connection: OrchestratorConnection) -> None:
@@ -42,11 +43,13 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
 
         if result == "No KLE case found":
             _citizens_without_cases.add(citizen.cpr)
+        elif result == "No workable case found":
+            _citizens_outside_flow.add(citizen.cpr)
 
         _handled_citizens.add(citizen.cpr)
 
-    if _citizens_without_cases:
-        send_no_cases_notification(_citizens_without_cases)
+    if _citizens_without_cases or _citizens_outside_flow:
+        send_no_cases_notification(_citizens_without_cases, _citizens_outside_flow)
 
 
 def handle_citizen(citizen: database.Citizen, nova_access: NovaAccess, kombit_access: KombitAccess) -> str:
@@ -109,13 +112,15 @@ def send_reminder(citizen: database.Citizen, case: NovaCase, reminder_number: in
             kmd_nova.add_sms_note(case.uuid, reminder_number, nova_access)
 
 
-def send_no_cases_notification(cprs_without_cases: set[str]):
+def send_no_cases_notification(cprs_without_cases: set[str], cprs_outside_flow: set[str]):
     """Send a notification about citizens on an unknown address who have no case at all."""
 
     body = "\n".join((
         "Hejsa\n",
         "Følgende borgere er på ukendt adresse, men har ingen aktiv sag i Nova med KLE 23.05.00:\n",
         "\n".join(cprs_without_cases),
+        "\nFølgende borgere har en sag i Nova, men er ikke sat til automatisk rykkerforløb:\n",
+        "\n".join(cprs_outside_flow),
         "\nVenlig hilsen",
         "Rykkerforløb-robotten",
     ))
