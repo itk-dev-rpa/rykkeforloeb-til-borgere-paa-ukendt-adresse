@@ -24,7 +24,7 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     """Do the primary process of the robot."""
     orchestrator_connection.log_trace("Running process.")
 
-    if skip_date():
+    if is_holiday_or_christmas():
         orchestrator_connection.log_info("Today is a holiday. Skipping process.")
         return
 
@@ -162,7 +162,7 @@ def send_limit_reached_notification(cpr: str):
     )
 
 
-def skip_date() -> bool:
+def is_holiday_or_christmas() -> bool:
     """Check if today's date is in the Christmas period (20/12 - 3/1) or a Danish holiday.
 
     Returns:

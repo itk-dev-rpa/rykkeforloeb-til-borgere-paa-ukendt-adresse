@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.2.0 - 2026-11-18
 
-- The process is now skipped on Danish holidays and between 20/12 and 3/1.
+- The process is now skipped on Danish holidays and between 20/12 and 3/1 (both inclusive).
 
 ## 1.1.0 - 2026-11-16
 
