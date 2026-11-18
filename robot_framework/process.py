@@ -163,7 +163,7 @@ def send_limit_reached_notification(cpr: str):
 
 
 def skip_date() -> bool:
-    """Check if the given date is in the Christmas period (20/12 - 3/1) or a Danish holiday.
+    """Check if today's date is in the Christmas period (20/12 - 3/1) or a Danish holiday.
 
     Returns:
         True if the date should be skipped.
