@@ -1,6 +1,6 @@
 """This module contains the main process of the robot."""
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from itk_dev_shared_components.kmd_nova.authentication import NovaAccess
@@ -23,6 +23,10 @@ _citizens_outside_flow: set[str] = set()
 def process(orchestrator_connection: OrchestratorConnection) -> None:
     """Do the primary process of the robot."""
     orchestrator_connection.log_trace("Running process.")
+
+    if is_holiday_or_christmas():
+        orchestrator_connection.log_info("Today is a holiday. Skipping process.")
+        return
 
     creds = orchestrator_connection.get_credential("Nova API")
     nova_access = NovaAccess(client_id=creds.username, client_secret=creds.password)
@@ -156,6 +160,48 @@ def send_limit_reached_notification(cpr: str):
         smtp_port=config.SMTP_PORT,
         smtp_server=config.SMTP_SERVER
     )
+
+
+def is_holiday_or_christmas() -> bool:
+    """Check if today's date is in the Christmas period (20/12 - 3/1) or a Danish holiday.
+
+    Returns:
+        True if the date should be skipped.
+    """
+    check_date = date.today()
+
+    # Christmas period 20/12 - 3/1. This also covers Nytårsdag, Juledag and 2. juledag.
+    if (check_date.month == 12 and check_date.day >= 20) or (check_date.month == 1 and check_date.day <= 3):
+        return True
+
+    easter = _easter_sunday(check_date.year)
+    holidays = {
+        easter - timedelta(days=3),  # Skærtorsdag
+        easter - timedelta(days=2),  # Langfredag
+        easter,  # Påskedag
+        easter + timedelta(days=1),  # 2. påskedag
+        easter + timedelta(days=39),  # Kristi himmelfartsdag
+        easter + timedelta(days=49),  # Pinsedag
+        easter + timedelta(days=50),  # 2. pinsedag
+        date(check_date.year, 6, 5),  # Grundlovsdag
+    }
+
+    return check_date in holidays
+
+
+def _easter_sunday(year: int) -> date:
+    """Calculate the date of Easter Sunday using the anonymous Gregorian algorithm."""
+    a = year % 19
+    b, c = divmod(year, 100)
+    d, e = divmod(b, 4)
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = divmod(c, 4)
+    n = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * n) // 451
+    month, day = divmod(h + n - 7 * m + 114, 31)
+    return date(year, month, day + 1)
 
 
 if __name__ == '__main__':
